@@ -1,0 +1,48 @@
+\documentclass{article}
+\usepackage{setspace}
+\usepackage{todonotes}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+
+\graphicspath{{assets/}}
+
+
+\doublespacing
+\begin{document}
+
+\section{TO DO}
+
+\listoftodos
+
+\section{Experiments}
+
+Both long- and short-term forecasting experiments were considered, as well as both neighborhood level spatial granularity and a larger city level spatial scheme.
+
+\subsubsection{Long Term Predictions}
+
+ Weekly traffic collision and injury data was aggregated to the level of New York City neighborhoods for this set of experiments. While data is available for the past five years, there appears to have been a reporting error for part of 2016 which made the year of data problematic for both model fitting and testing. It would have been ideal to fit the model based on multiple years of data leading up to the latest available data, but a long-term model was fit on the year 2015 and tested on 2015 because of the unreliablity of the later data in this case. \par
+
+
+ \todo{NTA map}
+
+ \todo{weekly data showing gap}
+
+\subsubsection{Short Term Forecasting}
+
+\section{Results}
+
+Borrowing again from Flaxman 2014, the models were evaluated on a variant of $R^2$ that captures the reduction in variance from each model component. The error from predicting solely on the spatial expectation $e_s$ serves as a baseline for comparison:
+
+$$ 1 - \frac{\sigma_{s,t}(n_{s,t}- \hat{n_{s,t}})^2}{\sigma_{s,t}(n_{s,t} - e_{s})^2}$$
+
+
+
+
+
+
+
+\bibliographystyle{plain}
+\bibliography{bibliography.bib}
+
+\end{document}
