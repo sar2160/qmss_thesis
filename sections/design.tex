@@ -1,30 +1,16 @@
-\documentclass{article}
-\usepackage{setspace}
-\usepackage{todonotes}
-\usepackage{fullpage}
-\usepackage{graphicx}
-\usepackage{amsfonts}
-
-\graphicspath{{assets/}}
-
-
-\doublespacing
-\begin{document}
-
-\section{TO DO}
-
-\listoftodos
 
 \section{Research Design}
+\label{design}
 
 
 \subsection{Models}
 
 This project will assess the viability of using Bayesian Gaussian Process models for spatiotemporal predictions in urban settings. Gaussian Processes have attractive properties for sparse data because a model can be interpreted as interpolating an unobserved point between known distributions \todo{Also, not totally confident in this statement}. As mentioned in the literature review, spatiotemporal models have historically suffered from computational infeasibility when the amount of data as well as spatial and temporal dimensionality grows. Recent advances in Bayesian probablistic programming (Stan) and implementations of Gaussian Processes that take advantage of the relative sparsity of data across spatial dimensions has reduced the computational burden of fitting these models, although the spatial granularity proposed here will require a great deal of posterior checks to ensure the model is fitting correctly. \par
 
-A Gaussian Process model will be compared to various existing spatial, temporal, and spatiotemporal modeling methods for this type of forecasting problem. Standard maximum-likelihood autoregressive models like ARIMA will be considered, as well as existing Bayesian methodologies like INLA. Out-of-sample predictive accuracy will be assessed with a root-mean-squared-error (RMSE) metric that
+A Gaussian Process model will be compared to  existing spatial, temporal, and spatiotemporal modeling methods for this type of forecasting problem. Standard maximum-likelihood autoregressive models like ARIMA will be considered, as well as existing Bayesian methodologies like INLA. Out-of-sample predictive accuracy will be assessed with a root-mean-squared-error (RMSE) metric that
 can be easily applied to all models. Robustness of forecasting results and model sensitivity to tuning parameters will also be assessed with the goal of providing insight into the practical viability of running models in a production environment. The relative speed of fitting different models will also be a factor for assessing viability. \par
 
+\subsection{Gaussian Processes}
 
 \subsection{The Log-Gaussian Cox Process}
 
@@ -41,7 +27,7 @@ $$\lambda(s,t) = exp((s,t))$$
 
 $$ y_{s,t} | \lambda(s,t) ~ Poisson(exp(f(s,t))e_t) $$
 
-The outcome count $y_{s,t}$ at location $s$ and time $t$ is generated from a Poisson distribution with parameter $f(s,t)e_t$. $f(s,t)$ is a function with a Gaussian process prior, while $e_s$ is a fixed spatial expectation term $\mathbb{E}[y_s]$. The spatial expectation is a convenient way to incorporate prior information about the variable of interest. Again following Flaxman 2014, using an exponential link function gives a practical interpretation of $exp(f(s,t))$ as the relative risk function while $f(s,t)$ itself is the log-relative risk. When the log-relative risk is 0, the relative risk is 1 and the expected value of of the outcome $y(s,t)$ is the just the prior spatial expectation $e_s$. Finally, every count outcome $y_{s,t}$ is assumed independent conditional on $f$, so the joint conditional likelihood of all $y$ factors as a product.
+The outcome count $y_{s,t}$ at location $s$ and time $t$ is generated from a Poisson distribution with parameter $f(s,t)e_t$. $f(s,t)$ is a function with a Gaussian process prior, while $e_s$ is a fixed spatial expectation term $\mathbb{E}[y_s]$. The spatial expectation is a convenient way to incorporate prior information about the variable of interest. Again following Flaxman 2014, using an exponential link function gives a practical interpretation of $exp(f(s,t))$ as the relative risk function while $f(s,t)$ itself is the log-relative risk. When the log-relative risk is 0, the relative risk is 1 and the expected value of of the outcome $y(s,t)$ is just the prior spatial expectation $e_s$. Finally, every count outcome $y_{s,t}$ is assumed independent conditional on $f$, so the joint conditional likelihood of all $y$ factors as a product.
 
 $$p(y|f) = \prod{ Poisson(exp(f(s,t))e_t)}$$
 
@@ -51,11 +37,21 @@ $f$ is modeled as following a generic Gaussian process with a mean of zero and a
 
 $$ f ~ GP(0,K) $$
 
-Spatiotemporal elements enter the Gaussian process model through $K$, which is used to capture the relationships of interest and actually entirely determines the model. Since variance/covariance is additive, any variance term can be decomposed at least theoretically into arbitrarily many additive components. Purely spatial and temporal elements as well as interactions can be incorporated using different kernel functions, and different combinations of kernels may produce more accurate results. Cross-validating models with different types and combinations of kernel functions will help identify the specification with the best predictive properties. Since the cross-validation data are correlated in this model the cross-validation set will have to be drawn from spatially contigous representative subsets of the data.
+Spatiotemporal elements enter the Gaussian process model through $K$, which is used to capture the relationships of interest and entirely determines the model. Since variance/covariance is additive, any variance term can be decomposed at least theoretically into arbitrarily many additive components. Purely spatial and temporal elements as well as interactions can be incorporated using different kernel functions, and different combinations of kernels may produce more accurate results. Cross-validating models with different types and combinations of kernel functions will help identify the specification with the best predictive properties. Since the cross-validation data are correlated in this model the cross-validation set will have to be drawn from spatially contigous representative subsets of the data.
 
 \subsubsection{Kernels}
 
-There are a wide variety of existing kernel functions documented for use in Gaussian process models \cite{rasmussen_2005} and it is also possible to define custom functions as long as they follow certain properties. Since the entire model is determined by its kernels there is a lot of room for experimentation and choice. The models considered for this project loosely follow Flaxman 2014 by consisting of up to four individual kernels $k$ , where $K=\sum{i}k_i$. The four basic kernel types were:
+There are a wide variety of existing kernel functions documented for use in Gaussian process models \cite{rasmussen_2005} and it is also possible to define custom functions as long as they follow certain properties. Since the entire model is determined by its kernels there is a lot of room for experimentation and choice. \par
+
+An important consideration is whether the model is considered to be stationary. In spatiotemporal models the case for assuming stationarity weakens as the time-period being considered lengthens, and this should in turn affect the kernel choice. The long term model considered includes a non-stationary linear kernel component intended to capture any long-term trends:    \par
+
+\begin{itemize}
+  \item $k_t(t)$ : a temporal kernel
+  \item $k_p(t)$ : a periodic kernel
+  \item $k_l$: a linear kernel
+\end{itemize}
+
+The short-term models considered for this project are all stationary and loosely follow Flaxman 2014 by consisting of up to four individual kernels $k$ , where $K=\sum{i}k_i$. The four basic kernel types were:
 
 \begin{itemize}
   \item $k_s(s)$ : a spatial kernel
@@ -64,9 +60,11 @@ There are a wide variety of existing kernel functions documented for use in Gaus
   \item $k_{st}(s,t)$ : a space-time interaction kernel
 \end{itemize}
 
-The kernel types specified for each $k$ differed slightly from Flaxman after experimenting with various configurations. $k_t(t)$ is a squared exponential kernel, which is also known as the Radial Basis Function (RBF).
+The kernel types specified for each $k$ differed slightly from Flaxman after experimenting with various configurations. Both a squared exponential and Matern-32 kernel were considered for the spatial component.
 
-\todo{MORE DETAILS ON CHOICE HERE}
+\todo{stationary vs. non-stationary}
+\todo{kernel plots (Matern vs. RBF?)}
+
 
 \subsubsection{Priors}
 
@@ -74,7 +72,9 @@ Gelman 2006 suggests using a student-t prior distribution restricted to be posit
 
 \subsubsection{Methods for fitting LGCPs}
 
-Solutions to the computational challenges in fitting LGCPs have advanced rapidly over the past five years. As recently as 2012 the best methods for fitting LGCP models involved variations of the Metropolis-Hastings sampling algorithm which were considered to be slow and highly inefficient in generating acceptable draws from the posterior distribution of the model \cite{murray_2012}. Advances in statistical computing have opened the door for several new model fitting methods, each with their own advantages and drawbacks.
+Solutions to the computational challenges in fitting LGCPs have advanced rapidly over the past five years. The computational bottleneck for Gaussian Process models is the the n-by-b covariance matrix, which requires an $O(n^3)$ computation. Fitting a GP model as $n$ grows beyond a few thousand points is quite challenging \cite{gelman2013bayesian}. \par
+
+ As recently as 2012 the best methods for fitting LGCP models involved variations of the Metropolis-Hastings sampling algorithm which were considered to be slow and highly inefficient in generating acceptable draws from the posterior distribution of the model \cite{murray_2012}. Advances in statistical computing have opened the door for several new model fitting methods, each with their own advantages and drawbacks.
 
 \subsubsection{Variational Inference}
 
@@ -115,17 +115,11 @@ Organizing spatiotemporal count data into a suitable form for modelling presents
 
 There are many administrative spatial aggregation bounds which are of potential use, such as Neighborhoods, Zip Codes, Census Blocks, or even unique street intersection IDs. While all may be perfectly viable depending on the situation, gridding provides a more generalizable spatial aggregation method which is already used in many spatial statistics applications, see for example the case studies in \cite{blangiardo_2015}. Gridding simply overlays a square grid of chosen size on the area of interest and sums all the count data within each grid cell into a single data point, a flexible method that can be easily - if imperfectly - applied to many spatial contexts. Being able to flexibly choose the size of grid squares adds an additional layer of modelling flexibility. \par
 
+\todo{NTA summarization: plot of NTA centroids in MN.}
+
 Finally gridding offers clear benefits in the specific case of Gaussian process models. Since the spatial kernel $k_s$ calculates the distance between any point $s_i$ and all other points in $s$ the computational cost of adding an additional point in $s$ is high and a GP model runs in $\mathbb{O}(n^3)$  \cite{flaxman_2015_FastKron}. By specifying the distance calculation only between the centroid of each grid square this method at least offers an explicit choice between higher spatial resolution and computational complexity.
 
 \begin{figure}[h!]
   \caption{A grid of 1250ft grid squares overlaid on the Park Slope street grid.}
   \includegraphics[width=0.5\textwidth]{PS_street_grid}
 \end{figure}
-
-
-
-
-\bibliographystyle{plain}
-\bibliography{bibliography.bib}
-
-\end{document}

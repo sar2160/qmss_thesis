@@ -1,48 +1,20 @@
-\documentclass{article}
-\usepackage{setspace}
-\usepackage{todonotes}
-\usepackage{fullpage}
-\usepackage{graphicx}
-\usepackage{amsfonts}
-
-\graphicspath{{assets/}}
-
-
-\doublespacing
-\begin{document}
-
-\section{TO DO}
-
-\listoftodos
 
 \section{Experiments}
+\label{experiments}
 
 Both long- and short-term forecasting experiments were considered, as well as both neighborhood level spatial granularity and a larger city level spatial scheme.
 
-\subsubsection{Long Term Predictions}
-
- Weekly traffic collision and injury data was aggregated to the level of New York City neighborhoods for this set of experiments. While data is available for the past five years, there appears to have been a reporting error for part of 2016 which made the year of data problematic for both model fitting and testing. It would have been ideal to fit the model based on multiple years of data leading up to the latest available data, but a long-term model was fit on the year 2015 and tested on 2015 because of the unreliablity of the later data in this case. \par
+\todo{Table of SML term and city/nta/grid characteristics}
 
 
- \todo{NTA map}
+\subsection{GPflow}
 
- \todo{weekly data showing gap}
+GPflow is a Python package developed for fitting Gaussian Process models that takes advantage of the autodifferentiation abilities of Google's TensorFlow to generate Maximum-A-Posteriori (MAP) estimates of the posterior distribution \cite{GPflow2017} \cite{tensorflow2015-whitepaper}. All models are converted into tensors and passed to Tensorflow's optimization algorithms that can run on Graphics Processing Units (GPUs) for fast and efficient computation. This cuts the time needed for each iteration significantly compared to running on a CPU and also doesn't restrict the user to using conjugate distributions when specifying priors and likelihoods - a prerequisite for the LGCP model. GPflow is also capable of full Bayesian inference using Hamiltonian Monte Carlo (HMC).
 
-\subsubsection{Short Term Forecasting}
+\subsubsection{Custom Modifications}
 
-\section{Results}
+While GPflow offers most of the settings required 'out-of-the-box', a few additional features had to be added independently. The base package does not offer the option for a Student-T prior, which was relatively easy to add by writing a new custom Student-T class to GPflow. The package also by default does not easily allow for decomposition of the different kernels' contribution to the parameter estimates. Finally, the GPflow implementation of Matern kernels often exhibit unstable behavior and, even after re-centering data. A small jitter was added to the Matern32 kernel in in order to reduce the chance of the Cholesky Decomposition failing. All modifications can be found in the appendix \todo(cite to appendix code).
 
-Borrowing again from Flaxman 2014, the models were evaluated on a variant of $R^2$ that captures the reduction in variance from each model component. The error from predicting solely on the spatial expectation $e_s$ serves as a baseline for comparison:
+\subsection{Kernel Choice}
 
-$$ 1 - \frac{\sigma_{s,t}(n_{s,t}- \hat{n_{s,t}})^2}{\sigma_{s,t}(n_{s,t} - e_{s})^2}$$
-
-
-
-
-
-
-
-\bibliographystyle{plain}
-\bibliography{bibliography.bib}
-
-\end{document}
+Besides making a choice for or against stationarity, kernels also embed other assumptions about the model's

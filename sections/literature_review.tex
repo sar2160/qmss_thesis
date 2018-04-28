@@ -1,22 +1,8 @@
-\documentclass{article}
-\usepackage{setspace}
-\usepackage{fullpage}
 
-
-\doublespacing
-
-
-\title{DRAFT: Bayesian Spatiotemporal Forecasting Methods for Urban Forcasting}
-\author{Simon Rimmele}
-\begin{document}
-
-
-\maketitle{}
 \section{Literature Review}
+\label{literature_review}
 
-Spatiotemporal models have become much more prevalent and found wider application since the computing power required for many Bayesian techniques became more widely available. In particular, spatiotemporal models of count distributions using a Poisson distribution were not feasible using maximum likelihood techniques, as the introduction of spatial autocorrelation made the definition of a likelihood function intractable in most cases \cite{cressie1993statistics}. A Bayesian simulation-based approach, while computationally demanding, can easily handle spatial dependance \cite{blangiardo_2015}.
-
-\par
+\subsection{Spatiotemporal modeling}
 
 Count-based spatial and spatiotemporal models are widely used in ecological fields e.g., for wildlife population and habitat studies \cite{cobi_2008}, as well as in the public health field for disease mapping \cite{schrodle_2011}. These models are typically at a low to medium level of spatial granularity, such as the regional model of the northwestern United States used in \cite{cobi_2008}. For studies set in urban areas some research has been done at the level of census tracts in an individual county, like Chun et., al's study on disparities in environmental hazards in Maricopa County \cite{chun_2012}. \par
 
@@ -26,10 +12,3 @@ Outside of the natural and environmental sciences, some forms of spatial and spa
 Outside of law enforcement, spatiotemporal models have also found some applications in urban social science through traffic modeling. Cheng et. al., used a non-Bayesian approach to model and forecast traffic dynamics in London \cite{cheng_2012}. In this study, the authors pose and attempt to grapple with one of the fundamental and ongoing challenges of using data in the context of a Smart City; the volumes of data available are often so massive thay they either overwhelm existing modelling methods and/or offer an almost endless number of ways to further segment and structure the data for use. Cheng et. al, use a variety of non-Bayesian methods including likelihood-based statistical models and gradient-based neural networks, but find these methods incapable of capturing the full autocorrelation structure of a traffic networks. The tradeoff between the spatiotemporal complexity of a model and the computational feasibility of fitting the model in medium to large datasets is evident here. \par
 
 There is obvious theoretical and practical appeal to using spatiotemporal forecasting methods in the context of the Smart City, whose premise is found in rethinking urban areas as an intricate system monitored and managed at an incredible level of detail through the use of data \cite{kitchin_2014}. While Smart City proponents have pointed to the potential of technological data generating mechanisms such as sensor networks, there is already a vast amount of generated data available through administrative channels such as 311, public safety reporting, or existing networked sensor systems like traffic monitoring. While there have been limited surveys into the use of spatiotemporal models for urban applications, even these were limited to forecasting at a low level of spatial granularity such as load demand for energy grids \cite{tascikaraoglu_2017}. Relatively little work has assessed the viability of making use of hyperlocal data for forecasting outcomes in an urban environment, much less productionizing a model to better deliver social services exactly where they are needed and at the right time.
-
-
-\bibliographystyle{plain}
-\bibliography{thesis_bib.bib}
-
-
-\end{document}

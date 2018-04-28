@@ -9,3 +9,90 @@
 \renewcommand{\baselinestretch}{2}
 \usepackage{setspace}
 \usepackage{etoolbox}
+\usepackage{setspace}
+\usepackage{todonotes}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+
+\usepackage[]{hyperref}
+\hypersetup{
+    pdftitle={Some Bullshit},    % title
+    pdfauthor={Simon Rimmele},     % author
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=black,          % color of internal links (change box color with linkbordercolor)
+    citecolor=black,        % color of links to bibliography
+    filecolor=black,      % color of file links
+    urlcolor=black           % color of external links
+}
+
+
+
+\graphicspath{{assets/}}
+
+
+% APA CITATIONS
+\usepackage[bibnewpage, nosectionbib]{apacite} %apa citation style
+\bibliographystyle{apacite}
+
+% FONTS
+\usepackage[]{mathptmx}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{bm} % Bold-italic math font
+
+% ALIGNMENT & INDENTATION
+\usepackage[document]{ragged2e} % left alignment (ragged right) instead of justified
+\setlength{\RaggedRightParindent}{.5in} % 1/2 inch paragraph indentation
+\usepackage{indentfirst} % indent first paragraphs after \section{} and friends
+
+% FOR FIGURES
+\usepackage{graphicx}
+% FOR LISTS
+\usepackage{enumerate}
+
+% FOR NICER TABLES
+\usepackage{booktabs}
+
+% FIGURE CAPTIONS
+\usepackage[font={small, it},format=hang,justification=justified,labelsep=space,labelfont={small,bf,up}]{caption}
+
+% CHAPTER TITLE STYLES
+\usepackage{titlesec}
+\definecolor{gray75}{gray}{0.75}
+\newcommand{\hsp}{\hspace{20pt}}
+
+% % PRETTY FORMATTING OF SOURCE CODE
+% \usepackage{styles/lstBUGS} % for pretty source code (https://github.com/jrnold/lstBUGS)
+% \lstset{
+% basicstyle=\scriptsize\singlespacing,
+% keywordstyle=\color{DarkSlateGray}\bfseries,
+% keywordstyle=[2]{\color{Black!80}},
+% commentstyle=\color{DimGrey},
+% frameround=fttt,
+% backgroundcolor=\color{AliceBlue!80},
+% xleftmargin=2em,
+% xrightmargin=2em
+% }
+
+\begin{document}
+
+
+\begingroup
+\mainmatter
+
+\input{sections/literature_review}
+\input{sections/design}
+\input{sections/experiments}
+\input{sections/results}
+\input{sections/discussion}
+\endgroup
+
+
+
+\backmatter
+
+\begingroup
+\bibliography{bibliography.bib}
+\endgroup
+
+\end{document}
