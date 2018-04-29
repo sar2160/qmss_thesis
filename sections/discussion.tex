@@ -1,19 +1,18 @@
-\section{Conclusion & Discussion}
+\section{Discussion}
 \label{discussion}
 
-\subsection{Conclusion}
+The goal of this research was to evaluate the value of spatiotemporal Gaussian Process models for applications in urban policy evaluation and forecasting, and some of the results are quite promising. Gaussian processes are capable of convincingly modeling the incidence of traffic collisions in various resolutions of urban environment. The citywide temporal model offers a decomposition of the inevitably noisy observed data into components which are directly useful to policymakers and far better predictors than a simple average, all while relying only on previous observed count data as an input. The LGCP model of traffic collisions decomposes longer term 'secular' trend from short-term variability and yearly seasonality. The long term model however did have some statistical shortcomings, chiefly the ill-fitted credible intervals. This should caution against using the model for overly precise predictions over the long term. \par
+
+Modelling the spatial heterogeneity between neighborhoods as well as across time also has many potential uses. The interpretation of the latent function $f_i$ at each location as a measure of relative risk is straightforward and easily applied for policy purposes. Again the decomposition of the kernel components allows for easy interpretation of the degree to which space and time contribute to the overall risk in each neighborhood, as well as being directly comparable to any other neighborhood. \par
+
+The most ambitious modelling initiative was to attempt to forecast individual events at very high spatial detail, in some cases down to the space of one or two city blocks. This method offered better performance than normal autoregression when the lookback period was short while performing comparably to an AR(1) as the period was lengthened. The reduction in variance analysis suggest that the spatial distance component is valuable especially when timeseries data are otherwise sparse \todo{plug in results}
 
 
 
+\subsection{Bias}
 
-\subsection{Discussion}
+One goal of this research was to evaluate the feasibility of spatiotemporal prediction and forecasting using model frameworks that are relatively easy to use "out of the box". As such, models ideally should not require additional data gathering, judgment about variable inclusion, and a minimal amount of parameter tuning. In this context operating complexity was kept to a minimum by limiting input data entirely to counts and location for the variable of interest.  One obvious side effect of this choice that neverless bears stating directly is any bias in the data will be diligently reproduced in the predictions. Here 'bias' is meant in the sense of predictions skewed toward existing inaccuracies in the data provided rather than the technical definition of statistical bias. This is especially relevant considering ongoing research into the performance of predictive algorithms when trained on data which had reporting bias. An illustrative example is a 2016 study of predictive policing systems in Oakland California \cite{lum2016predict}. Lum and Isaac found that the proprietary algorithm provided by a private contractor replicated , rather than controlled for, reporting bias in the training data stemming from historical overpolicing of black Americans for drug offenses. \par
 
-\subsubsection{Interpretation of the Risk Surface}
 
-\todo{plot of a relative risk surface}
-
-\subsubsection{Bias}
-
-One goal of this research was to evaluate the feasibility of spatiotemporal prediction and forecasting using model frameworks that are relatively easy to use "out of the box". As such, models ideally should not require additional data gathering, judgment about variable inclusion, and a minimal amount of parameter tuning. In this context operating complexity was kept to a minimum by limiting input data entirely to counts and location for the variable of interest.  One obvious side effect of this choice that neverless bears stating directly is that
 
 Potential for scalability.

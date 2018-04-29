@@ -5,12 +5,21 @@
 
 \subsection{Models}
 
-This project will assess the viability of using Bayesian Gaussian Process models for spatiotemporal predictions in urban settings. Gaussian Processes have attractive properties for sparse data because a model can be interpreted as interpolating an unobserved point between known distributions \todo{Also, not totally confident in this statement}. As mentioned in the literature review, spatiotemporal models have historically suffered from computational infeasibility when the amount of data as well as spatial and temporal dimensionality grows. Recent advances in Bayesian probablistic programming (Stan) and implementations of Gaussian Processes that take advantage of the relative sparsity of data across spatial dimensions has reduced the computational burden of fitting these models, although the spatial granularity proposed here will require a great deal of posterior checks to ensure the model is fitting correctly. \par
+This project will assess the viability of using Bayesian Gaussian Process models for spatiotemporal predictions in urban settings. Gaussian Processes have attractive properties for sparse data because a model can be interpreted as interpolating an unobserved point between known distributions \todo{Also, not totally confident in this statement}. As mentioned in the literature review, spatiotemporal models have historically suffered from computational infeasibility when the amount of data as well as spatial and temporal dimensionality grows. Recent advances in Bayesian probablistic programming and implementations of Gaussian Processes that take advantage of the relative sparsity of data across spatial dimensions has reduced the computational burden of fitting these models. \par
 
-A Gaussian Process model will be compared to  existing spatial, temporal, and spatiotemporal modeling methods for this type of forecasting problem. Standard maximum-likelihood autoregressive models like ARIMA will be considered, as well as existing Bayesian methodologies like INLA. Out-of-sample predictive accuracy will be assessed with a root-mean-squared-error (RMSE) metric that
-can be easily applied to all models. Robustness of forecasting results and model sensitivity to tuning parameters will also be assessed with the goal of providing insight into the practical viability of running models in a production environment. The relative speed of fitting different models will also be a factor for assessing viability. \par
 
 \subsection{Gaussian Processes}
+
+A Gaussian Process (GP) is a generalization of a Gaussian - also known as the Normal - distribution. A Normal distribution is defined by a scalar mean $\mu$ and variance $\sigma$ in the univariate case, and a n-length vector $\mathbf{\mu}$ with a n-by-n dimensional covariance matrix $\Sigma$ in the multivariate case. A Gaussian Process "can be viewed as a potentially infinite-dimensions generalization of [the] Gaussian distribution" \cite{gelman2013bayesian} , p. 501. However any finite-dimensional marginal distribution from a Gaussian Process is also Gaussian, which makes a GP suited as a prior distribution for some unknown regression function $\mathbf{mu}(x)$ - where $x$ is a vector with arbitary but finite dimensions. A generic Gaussian Process $\mu \sim GP(m,k)$ is a random function drawn from an n-dimensional normal distribution \cite{gelman2013bayesian}: \par
+
+$$ \mu(x_1),...,\mu(x_n)) \sim N((m(x_1),...,m(x_n)),K(x_1,...,x_n)) $$
+
+Thus a Gaussian Process is defined entirely by a mean function $m$ and covariance function/s $K$. Sums and products of GPs are also GPs, which makes it simple to combine different variations of covariance functions.
+
+\subsubsection{Estimating Gaussian Processes}
+
+While it is not necessary to go into extensive detail about the theory of Gaussian Processes for this application, it is relevant to briefly describe what part of the estimation poses a challenge for high-dimensional datasets like those found in spatiotemporal forecasting. To generate samples from a finite-dimensional realization of a GP $\mathbf{\mu} \sim N(\mathbf{m},K)$, it is necessary to calculate the Cholesky decomposition of the covariance matrix: $K=LL^\intercal$. Then it easy to generate standard Normal draws $\mathbf{u} \sim N(\mathbf(0),I)$, and shift them using $\mathbf{\mu}=\mathbf{m}+L\mathbf{u}$ \cite{rasmussen_2005}. Calculating $L$ is quite computationally demanding as $n$ rises. In practice the eigenvalues of $K$ can also decay, causing the decomposition to fail. This is solved in practice by adding a small 'jitter' term to the diagonal of $K$. Ideally the jitter term is small enough to not influence the estimates, but this has to be assessed through trial and error. \par
+
 
 \subsection{The Log-Gaussian Cox Process}
 
@@ -25,7 +34,7 @@ A zero-inflated Binomial (ZIB) likelihood would be another alternative to consid
 
 $$\lambda(s,t) = exp((s,t))$$
 
-$$ y_{s,t} | \lambda(s,t) ~ Poisson(exp(f(s,t))e_t) $$
+$$ y_{s,t} | \lambda(s,t) \sim Poisson(exp(f(s,t))e_t) $$
 
 The outcome count $y_{s,t}$ at location $s$ and time $t$ is generated from a Poisson distribution with parameter $f(s,t)e_t$. $f(s,t)$ is a function with a Gaussian process prior, while $e_s$ is a fixed spatial expectation term $\mathbb{E}[y_s]$. The spatial expectation is a convenient way to incorporate prior information about the variable of interest. Again following Flaxman 2014, using an exponential link function gives a practical interpretation of $exp(f(s,t))$ as the relative risk function while $f(s,t)$ itself is the log-relative risk. When the log-relative risk is 0, the relative risk is 1 and the expected value of of the outcome $y(s,t)$ is just the prior spatial expectation $e_s$. Finally, every count outcome $y_{s,t}$ is assumed independent conditional on $f$, so the joint conditional likelihood of all $y$ factors as a product.
 
@@ -35,7 +44,7 @@ $$p(y|f) = \prod{ Poisson(exp(f(s,t))e_t)}$$
 
 $f$ is modeled as following a generic Gaussian process with a mean of zero and a covariance matrix $K$:
 
-$$ f ~ GP(0,K) $$
+$$ f \sim GP(0,K) $$
 
 Spatiotemporal elements enter the Gaussian process model through $K$, which is used to capture the relationships of interest and entirely determines the model. Since variance/covariance is additive, any variance term can be decomposed at least theoretically into arbitrarily many additive components. Purely spatial and temporal elements as well as interactions can be incorporated using different kernel functions, and different combinations of kernels may produce more accurate results. Cross-validating models with different types and combinations of kernel functions will help identify the specification with the best predictive properties. Since the cross-validation data are correlated in this model the cross-validation set will have to be drawn from spatially contigous representative subsets of the data.
 
@@ -60,25 +69,28 @@ The short-term models considered for this project are all stationary and loosely
   \item $k_{st}(s,t)$ : a space-time interaction kernel
 \end{itemize}
 
-The kernel types specified for each $k$ differed slightly from Flaxman after experimenting with various configurations. Both a squared exponential and Matern-32 kernel were considered for the spatial component.
-
-\todo{stationary vs. non-stationary}
 \todo{kernel plots (Matern vs. RBF?)}
 
 
 \subsubsection{Priors}
 
-Gelman 2006 suggests using a student-t prior distribution restricted to be positive (a 'half-t') as a prior for variance parameters in hierarchical models \cite{gelman_2006}. Since variance is always positive it is acceptable and desirable to restrict the prior distribution to be non-negative as well. Flaxman 2014 used a standard student-t prior with 4 degrees of freedom on all parameters (not just variance). The GPflow package doesn't currently offer a student-t prior of any kind, so a normal distribution was used as a substitute. The normal prior has less probability mass in its tails than the Student-t but is otherwise a close substitute. A standard $N~(0,1)$ was used for all but the spatial kernel $k_s(s)$, which had a $N~(0,5)$ prior. This was necessary as the smaller $\sigma$ value sometimes caused the optimization algorithm to fail.
+Gelman 2006 suggests using a student-t prior distribution restricted to be positive (a 'half-t') as a prior for variance parameters in hierarchical models \cite{gelman_2006}. Since variance is always positive it is acceptable and desirable to restrict the prior distribution to be non-negative as well. Flaxman 2014 used a standard student-t prior with 4 degrees of freedom on all parameters (not just variance). Both standard Normal $N \sim (0,1)$ and Student-T priors were considered here. The normal prior has less probability mass in its tails than the Student-t but is otherwise a close substitute. The Normal prior did sometimes lead to the optimization algorithm failing to find a credible set of parameter estimates, while the Student-T with degrees of freedom between 2 and 10 performed better. Increasing the variance on the prior distributions was another way to lower the probability of the optimizer failing, but it also led to dramatically increased runtimes in some cases.
 
 \subsubsection{Methods for fitting LGCPs}
 
-Solutions to the computational challenges in fitting LGCPs have advanced rapidly over the past five years. The computational bottleneck for Gaussian Process models is the the n-by-b covariance matrix, which requires an $O(n^3)$ computation. Fitting a GP model as $n$ grows beyond a few thousand points is quite challenging \cite{gelman2013bayesian}. \par
+Solutions to the computational challenges in fitting LGCPs have advanced rapidly over the past five years. As mentioned earlier, the computational bottleneck for Gaussian Process models is the the n-by-b covariance matrix, which requires an $O(n^3)$ computation. Fitting a GP model as $n$ grows beyond a few thousand points is quite challenging \cite{gelman2013bayesian}. \par
 
  As recently as 2012 the best methods for fitting LGCP models involved variations of the Metropolis-Hastings sampling algorithm which were considered to be slow and highly inefficient in generating acceptable draws from the posterior distribution of the model \cite{murray_2012}. Advances in statistical computing have opened the door for several new model fitting methods, each with their own advantages and drawbacks.
 
+\subsubsection{LaPlace Approximation}
+
+\todo{INLA description}
+
 \subsubsection{Variational Inference}
 
-Variational Inference (VI) methods attempt to recover parameter estimates for a posterior distribution of interest by specifying a more tractable family of distributions and optimizing the resulting approximation using closed-form or computational methods. In the case of the LGCP there is no direct closed-form solution, but advances in computation - in particular autodifferentiation algorithms - have made the process easier. However, there are no theoretical justifications for the accuracy of estimates produced by VI because it is unclear and often unknowable how close the optimized approximation is to the true posterior distribution (Kullback-Leibler divergence). Yao et., al. recently proposed several diagnostic methods for assessing whether a VI approximation actually 'worked' \cite{yao_2018}.
+Variational Inference (VI) methods attempt to recover parameter estimates for a posterior distribution of interest by specifying a more tractable family of distributions and optimizing the resulting approximation using closed-form or computational methods. In the case of the LGCP there is no direct closed-form solution, but advances in computation - in particular autodifferentiation algorithms - have made the process easier. VI methods have in the past been limited by needing to make simplifying assumptions about the approximating distributions. Usually VI makes the 'mean-field' assumption (borrowed from physics), that the posterior can be approximated by the product of some number of existing distributions. The mean-field assumption is especially unsuited for high-dimensional models like a Gaussian Process, but Tran & Blei characterize a Variational Gaussian Process method that avoids the assumption \cite{tran_2015}. GPflow-the package used for this project- uses the Variational Gaussian Process for fitting \cite{GPflow2017}.\par
+
+However, there are no theoretical justifications for the accuracy of estimates produced by VI because it is unclear and often unknowable how close the optimized approximation is to the true posterior distribution (Kullback-Leibler divergence) \todo(add formula). Yao et., al. recently proposed several diagnostic methods for assessing whether a VI approximation actually 'worked' \cite{yao_2018}.
 
 \subsubsection{MCMC}
 
@@ -95,7 +107,6 @@ see GPML pg. 82 , Bohner's theorem
 While MCMC methods clearly offer desirable properties superior to VI methods, their practical limitations made them somewhat burdensome to consider for this project. The most unfortunate drawbacks were that MCMC is very slow to fit in comparison with VI and that specifying tractable LGCP models in an MCMC language such as Stan requires writing more complex and less flexible code \cite{Flaxman2015FastHG}. In an attempt to draw a compromise between ease of experimentation and model reliability this project used primarily VI methods under the knowledge that these methods may not produce the best results for practical use.
 
 
-
 \subsection{Model Specification}
 
 
@@ -105,19 +116,18 @@ This project will use observational administrative data gathered as part of New 
 
 Although the aforementioned urban events are ex-ante all topic of interests with some potential for spatiotemporal forecastability and would benefit from more accurate modelling, this project instead focused on another heavily spatially dependent public safety issue: vehicle collisions. There have been over 200 fatalities annually resulting from vehicle collisions in New York City over the past five years while Mayor Bill de Blasio's Vision Zero plan has publicly stated a goal of lowering the number of fatalities to zero \cite{nyc_vz}. \par
 
-While approximately 200 fatalities a year is not a 'rare' event, the likelihood of observing a fatality at any given time and place in New York City is exceedingly rare. What's more, public safety interventions in the form of increased enforcement or street redesign can be deployed reactively to the scene of a fatality with little or no information about the true relative risk of that location \todo{can I cite Jonathan here?}. \par
+While approximately 200 fatalities a year is not a 'rare' event, the likelihood of observing a fatality at any given time and place in New York City is exceedingly rare. What's more, public safety interventions in the form of increased enforcement or street redesign can be deployed reactively to the scene of a fatality with little or no information about the relative risk of that location \todo{can I cite Jonathan here?}. \par
 
 By contrast, non-fatal injuries resulting from traffic collisions are much more common, with X in 2017 alone where Y of them were marked as serious \todo{fill in injury stats}. By thinking of injuries as a potential fatality observing and attempting to forecast these injures reliably could provide a much better estimate of where the city is particularly risky for traffic collisions. These estimates could in turn be used to evaluate the efficacy of any public safety intervention after the fact instead of relying on observing only the future fatality count which may be subject to mean reversion in a situation where the mean fatalities at any given place and time are very close to zero.
 
 \subsubsection{Data Processing}
 
-Organizing spatiotemporal count data into a suitable form for modelling presents a challenge in itself. While every count observation occured at a specific point and time, aggregating to a form appropriate both for modelling and capable of providing useful granular forecasts is a balancing act. Traffic collisions in particular are difficult to aggregate into consisten spatial locations that also have a coherent interpretation of the distance between each location necessary for fitting a spatiotemporal model. \par
+Organizing spatiotemporal count data into a suitable form for modelling presents a challenge in itself. While every count observation occured at a specific point and time, aggregating to a form appropriate both for modelling and capable of providing useful granular forecasts is a balancing act. Traffic collisions in particular are difficult to aggregate into consistent spatial locations that also have a coherent interpretation of the distance between each location necessary for fitting a spatiotemporal model. \par
 
 There are many administrative spatial aggregation bounds which are of potential use, such as Neighborhoods, Zip Codes, Census Blocks, or even unique street intersection IDs. While all may be perfectly viable depending on the situation, gridding provides a more generalizable spatial aggregation method which is already used in many spatial statistics applications, see for example the case studies in \cite{blangiardo_2015}. Gridding simply overlays a square grid of chosen size on the area of interest and sums all the count data within each grid cell into a single data point, a flexible method that can be easily - if imperfectly - applied to many spatial contexts. Being able to flexibly choose the size of grid squares adds an additional layer of modelling flexibility. \par
 
-\todo{NTA summarization: plot of NTA centroids in MN.}
+Finally gridding offers clear benefits in the specific case of Gaussian process models. Since the spatial kernel $k_s$ calculates the distance between any point $s_i$ and all other points in $s$ the computational cost of adding an additional point in $s$ is high. By specifying the distance calculation only between the centroid of each grid square this method at least offers an explicit choice between higher spatial resolution and computational complexity.
 
-Finally gridding offers clear benefits in the specific case of Gaussian process models. Since the spatial kernel $k_s$ calculates the distance between any point $s_i$ and all other points in $s$ the computational cost of adding an additional point in $s$ is high and a GP model runs in $\mathbb{O}(n^3)$  \cite{flaxman_2015_FastKron}. By specifying the distance calculation only between the centroid of each grid square this method at least offers an explicit choice between higher spatial resolution and computational complexity.
 
 \begin{figure}[h!]
   \caption{A grid of 1250ft grid squares overlaid on the Park Slope street grid.}
