@@ -13,14 +13,27 @@ Both long- and short-term prediction and forecasting experiments were considered
 Outlook     & Spatial Feature & Frequency & Fitting Period & Look-Ahead Period & Stationary \\ \midrule
 Long-Term   & None            & Weekly    & 3 years        & 52 Weeks          & No         \\
 Medium-Term & Neighborhoods   & Weekly    & 1 year         & 26 Weeks          & Yes        \\
-Short-Term  & Grid Squares    & Weekly    & 3  weeks       & 12 Weeks          & Yes        \\ \bottomrule
+Short-Term  & Grid Squares    & Weekly    & 6  weeks       & 12 Weeks          & Yes        \\ \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Kernel Choice}
 
+The kernel types specified for each $k$ differed slightly from Flaxman 2014 after experimenting with various configurations. Table \ref{kernel_summary} describes the kernel combinations used for each model. Other combinations were considered, including using variations of the Matern class and varying the interaction term, but none exhibited better performance.
 
-The kernel types specified for each $k$ differed slightly from Flaxman 2014 after experimenting with various configurations. Matern kernels did not perform any better than the Radial Basis Function kernels, despite the RBF surface being less theoretically appealing when dealing with high-variance observations because of its relative smoothness. 
+
+\begin{table}[]
+\centering
+\caption{Kernel Specifications}
+\label{kernel_summary}
+\begin{tabular}{@{}llllll@{}}
+\toprule
+            & Temporal & Spatial  & Periodic & Product            & Linear \\ \midrule
+Long-Term   & RBF      & No       & Yes      & No                 & Yes    \\
+Medium-Term & RBF      & Matern32 & Yes      & Spatial x Temporal & No     \\
+Short-Term  & RBF      & RBF      & Yes      & Spatial x Temporal & No     \\ \bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Data Cleaning}
 

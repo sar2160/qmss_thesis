@@ -1,11 +1,12 @@
 
-\section{Research Design}
+\chapter{Research Design}
 \label{design}
 
 
 \subsection{Models}
 
-This project will assess the viability of using Bayesian Gaussian Process models for spatiotemporal predictions in urban settings. Gaussian Processes have attractive properties for sparse data because a model can be interpreted as interpolating an unobserved point between known distributions \todo{Also, not totally confident in this statement}. As mentioned in the literature review, spatiotemporal models have historically suffered from computational infeasibility when the amount of data as well as spatial and temporal dimensionality grows. Recent advances in Bayesian probablistic programming and implementations of Gaussian Processes that take advantage of the relative sparsity of data across spatial dimensions has reduced the computational burden of fitting these models. \par
+This project will assess the viability of using Gaussian Process models for spatiotemporal predictions in urban settings. Gaussian Processes have attractive properties for sparse data because a model can be interpreted as interpolating an unobserved point between known distributions \todo(Also, not totally confident in this statement). As mentioned in the literature review, spatiotemporal models have historically suffered from computational infeasibility when the amount of data as well as spatial and temporal dimensionality grows. Recent advances in Bayesian probablistic programming and implementations of Gaussian Processes that take advantage of the relative sparsity of data across spatial dimensions has reduced the computational burden of fitting these models. \par
+
 
 
 \subsection{Gaussian Processes}
@@ -69,7 +70,33 @@ The short-term models considered for this project are all stationary and loosely
   \item $k_{st}(s,t)$ : a space-time interaction kernel
 \end{itemize}
 
-\todo{kernel plots (Matern vs. RBF?)}
+Radial Basis Function (RBF) and Matern family kernels are candidates for spatial and temporal modelling. They differ in the extent to which they 'smooth' the input. The most appropriate kernel will vary based on the characteristics of the observations being modelled.
+
+The RBF kernel - also called the squared exponential - is widely used as a default stationary kernel:
+
+$$ k_t(t) = exp\big(- \frac{(|t-t'|)^2}{2\ell^2}\big) $$
+
+The L1 norm $|t-t'|$ of the input entirely determines the kernel, along with $\ell$,  a lengthscale parameter that is common to kernel functions.
+
+The Matern family kernels are defined:
+
+$$ k_t(t) = \frac{1}{2^{\nu - 1}\Gamma(\nu)}\big(\frac{\root{2\nu}}{\ell}(|t-t'|)\big)^\nu K_{\nu}\big(\frac{\root{2\nu}}{\ell}(|t-t'|)\big)$$
+
+The parameter $\nu$ determines the degree of smoothness and the kernel converges to a Gaussian kernel as $\nu$ goes to \inf. Typical values of $\nu$ are fractions, with $\nu=\frac{1}{2}$ or $\frac{3}{2}$ being quite common. The name of a specific kernel is often expressed by referencing the parameter value, so in this paper a 'Matern32'  refers to a Matern kernel with $\nu=\frac{3}{2}$. Figure \ref{kernel_examples} shows a comparison of the degree of smoothing a RBF,Matern12, and Matern32 kernel have on the same multivariate random input:
+
+\begin{figure}[h!]
+  \centering
+  \label{kernel_examples}
+  \caption{}
+  \includegraphics[width = 0.5\textwidth]{kernel_examples}
+\end{figure}
+
+
+The periodic is another class of stationary kernel. The variant used in this project follows MacKay 1998  \cite{mackay1998introduction}:
+
+$$ k_p(t) = exp \bigg[ - \frac{1}{2}\sigma_i \big(\frac{sin(\frac{\pi}{\delta}(t_i - t_i'))}{\ell} \big)^2 \bigg] $$
+
+$\delta$ is a length scale that can either be fit or set to a fixed anticipated value such as 52 for annual weekly data. $\ell$ is again the lengthscale parameter.\par
 
 
 \subsubsection{Priors}
@@ -82,27 +109,27 @@ Solutions to the computational challenges in fitting LGCPs have advanced rapidly
 
  As recently as 2012 the best methods for fitting LGCP models involved variations of the Metropolis-Hastings sampling algorithm which were considered to be slow and highly inefficient in generating acceptable draws from the posterior distribution of the model \cite{murray_2012}. Advances in statistical computing have opened the door for several new model fitting methods, each with their own advantages and drawbacks.
 
-\subsubsection{LaPlace Approximation}
 
-\todo{INLA description}
 
 \subsubsection{Variational Inference}
 
-Variational Inference (VI) methods attempt to recover parameter estimates for a posterior distribution of interest by specifying a more tractable family of distributions and optimizing the resulting approximation using closed-form or computational methods. In the case of the LGCP there is no direct closed-form solution, but advances in computation - in particular autodifferentiation algorithms - have made the process easier. VI methods have in the past been limited by needing to make simplifying assumptions about the approximating distributions. Usually VI makes the 'mean-field' assumption (borrowed from physics), that the posterior can be approximated by the product of some number of existing distributions. The mean-field assumption is especially unsuited for high-dimensional models like a Gaussian Process, but Tran & Blei characterize a Variational Gaussian Process method that avoids the assumption \cite{tran_2015}. GPflow-the package used for this project- uses the Variational Gaussian Process for fitting \cite{GPflow2017}.\par
+Variational Inference (VI) methods attempt to recover parameter estimates for a posterior distribution of interest by specifying a more tractable family of distributions and optimizing the resulting approximation using closed-form or computational methods. Usually the family of approximating distributions is denoted $Q$, and the optimization seeks to minimize the Kullback-Leiber divergence $KL[(\theta), p(\theta|y)]$ between $q(\theta)$ and the true posterior $p(\theta|y)$. \par
 
-However, there are no theoretical justifications for the accuracy of estimates produced by VI because it is unclear and often unknowable how close the optimized approximation is to the true posterior distribution (Kullback-Leibler divergence) \todo(add formula). Yao et., al. recently proposed several diagnostic methods for assessing whether a VI approximation actually 'worked' \cite{yao_2018}.
+
+In the case of the LGCP there is no direct closed-form solution, but advances in computation - in particular autodifferentiation algorithms - have made the process easier. VI methods have in the past been limited by needing to make simplifying assumptions about the approximating distributions. Usually VI makes the 'mean-field' assumption (borrowed from physics), that the posterior can be approximated by the product of some number of existing distributions: $q(\theta_1,...,\theta_n)= \Product_j{q_j(\theta_j)}$. The mean-field assumption is especially unsuited for high-dimensional models like a Gaussian Process, but Tran & Blei characterize a Variational Gaussian Process method that avoids the assumption \cite{tran_2015}. GPflow-the package used for this project- uses the Variational Gaussian Process for fitting \cite{GPflow2017}.\par
+
+However, there are no theoretical justifications for the accuracy of estimates produced by VI because it is unclear and often unknowable how close the optimized approximation is to the true posterior distribution, where the $KL$ divergence term is a unitless and uninterpretable difference between the two that cannot be compared across models. Yao et., al. recently proposed several diagnostic methods for assessing whether a VI approximation 'worked' \cite{yao_2018}.
 
 \subsubsection{MCMC}
 
 Markov Chain Monte Carlo (MCMC) sampling methods by contrast do have theoretical properties that ensure consistent estimation of the posterior distribution - at least  as the numbers of samples increases asympotically \cite{teng_2017}. MCMC methods are not a new development in themselves, but there have been breakthroughs both in MCMC algorithm design and computing power required to fit more complex models. Stan has been used for spatiotemporal modelling of causes of mortality using Gaussian Markov Random Field models, another potential alternative to LGCPs that may be appropriate for urban forecasting but are not considered here \cite{foreman_2017}. In contrast to VI, MCMC also is capable of producing estimates for full posterior distributions for parameters of interest, rather than point estimate approximations. In the case of urban prediction and forecasting, access to full posterior estimates would offer much more probalistic information from which to draw uncertainty-based conclusions in a policy or administrative context \todo{EXAMPLE HERE}.
 
-\subsubsection{VFF}
-\todo{MAYBE MOVE TO DISCUSSION, add mention Kronecker methods}
+\subsubsection{LaPlace Approximation}
 
-see GPML pg. 82 , Bohner's theorem
+Integrated Nested LaPlace Approximation (INLA) is an alternative to MCMC capable of fitting a LGCP \cite{illian_toolbox}. INLA works by approximating the distribution of each parameter around the mode of its posterior \cite{lindgren2015bayesian}. The marginal posteriors are calculated by numerically integrating over the parameters and then doing another approximation of the marginal posterior (hence the 'Nested' component of INLA). When the number of hyperparameters is relatively small, INLA is capable of quickly fitting a latent Gaussian field model - of which the LGCP is a special case \cite{rue2009approximate}. LGCP models usually assume a square grid structure for the spatial component in order to fit the model, but Simpson 2016 also fits LGCPs without relying on explicit grid structure \cite{simpson2016going}.
 
 
-\subsubsection{Method Choice}
+\subsection{Method Choice}
 
 While MCMC methods clearly offer desirable properties superior to VI methods, their practical limitations made them somewhat burdensome to consider for this project. The most unfortunate drawbacks were that MCMC is very slow to fit in comparison with VI and that specifying tractable LGCP models in an MCMC language such as Stan requires writing more complex and less flexible code \cite{Flaxman2015FastHG}. In an attempt to draw a compromise between ease of experimentation and model reliability this project used primarily VI methods under the knowledge that these methods may not produce the best results for practical use.
 
@@ -130,6 +157,7 @@ Finally gridding offers clear benefits in the specific case of Gaussian process 
 
 
 \begin{figure}[h!]
+  \centering
   \caption{A grid of 1250ft grid squares overlaid on the Park Slope street grid.}
-  \includegraphics[width=0.5\textwidth]{PS_street_grid}
+  \includegraphics[\textwidth]{PS_street_grid}
 \end{figure}

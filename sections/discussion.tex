@@ -1,18 +1,65 @@
-\section{Discussion}
+\chapter{Discussion}
 \label{discussion}
 
-The goal of this research was to evaluate the value of spatiotemporal Gaussian Process models for applications in urban policy evaluation and forecasting, and some of the results are quite promising. Gaussian processes are capable of convincingly modeling the incidence of traffic collisions in various resolutions of urban environment. The citywide temporal model offers a decomposition of the inevitably noisy observed data into components which are directly useful to policymakers and far better predictors than a simple average, all while relying only on previous observed count data as an input. The LGCP model of traffic collisions decomposes longer term 'secular' trend from short-term variability and yearly seasonality. The long term model however did have some statistical shortcomings, chiefly the ill-fitted credible intervals. This should caution against using the model for overly precise predictions over the long term. \par
+The goal of this research was to evaluate the value of spatiotemporal Gaussian Process models for applications in urban policy evaluation and forecasting, and some of the results are quite promising. Gaussian processes are capable of convincingly modeling the incidence of traffic collisions in various resolutions of urban environment. The citywide temporal model offers a decomposition of the inevitably noisy observed data into components which are directly useful to policymakers and far better predictors than a simple average, all while relying only on previous observed count data as an input. The LGCP model of traffic collisions decomposes longer term 'secular' trend from short-term variability and yearly seasonality. The long term model however did have some statistical shortcomings, chiefly the ill-fitted credible intervals and poor $k$ score. This should caution against relying on the model for overly precise predictions over the long term. \par
 
 Modelling the spatial heterogeneity between neighborhoods as well as across time also has many potential uses. The interpretation of the latent function $f_i$ at each location as a measure of relative risk is straightforward and easily applied for policy purposes. Again the decomposition of the kernel components allows for easy interpretation of the degree to which space and time contribute to the overall risk in each neighborhood, as well as being directly comparable to any other neighborhood. \par
 
-The most ambitious modelling initiative was to attempt to forecast individual events at very high spatial detail, in some cases down to the space of one or two city blocks. This method offered better performance than normal autoregression when the lookback period was short while performing comparably to an AR(1) as the period was lengthened. The reduction in variance analysis suggest that the spatial distance component is valuable especially when timeseries data are otherwise sparse \todo{plug in results}
+The most ambitious modelling initiative was to attempt to forecast individual events at very high spatial detail, in some cases down to the space of one or two city blocks. This method offered better performance than normal autoregression when the lookback period was short while performing comparably to an AR(1) as the period was lengthened. The reduction in variance analysis suggest that the spatial distance component is valuable especially when timeseries data are otherwise sparse.
+
+\subsection{Methodological Issues}
+
+\subsubsection{Zero Inflation}
 
 
+The LGCP model as specified suffers when dealing with the sparsity of observations when events are recorded at increasing levels of spatial and temporal granularity. When using very small grid edge sizes of 500-1000ft, The model would often land on a constant relative risk prediction of $f(s,t)=1$ - equivalent to a prediction of $e_s$ at all points - or fail to converge at all. The Poisson likelihood may suffer from the 'zero-inflation' problem. With most grid and time points having no observations a majority of the time, a Poisson distribution does not have enough probability mass near zero to provide a good fit. An alternative likelihood like the Zero-Inflated Binomial may be better suited for very rare events. \par
 
-\subsection{Bias}
+\subsubsection{Unstable Inference}
 
-One goal of this research was to evaluate the feasibility of spatiotemporal prediction and forecasting using model frameworks that are relatively easy to use "out of the box". As such, models ideally should not require additional data gathering, judgment about variable inclusion, and a minimal amount of parameter tuning. In this context operating complexity was kept to a minimum by limiting input data entirely to counts and location for the variable of interest.  One obvious side effect of this choice that neverless bears stating directly is any bias in the data will be diligently reproduced in the predictions. Here 'bias' is meant in the sense of predictions skewed toward existing inaccuracies in the data provided rather than the technical definition of statistical bias. This is especially relevant considering ongoing research into the performance of predictive algorithms when trained on data which had reporting bias. An illustrative example is a 2016 study of predictive policing systems in Oakland California \cite{lum2016predict}. Lum and Isaac found that the proprietary algorithm provided by a private contractor replicated , rather than controlled for, reporting bias in the training data stemming from historical overpolicing of black Americans for drug offenses. \par
+The high PSIS-LOO scores of all the models is discouraging. This suggests potentially poor optimization results when fitting with Variational Inference. Using full posterior inference with Markov Chain Monte Carlo methods would assess whether the model fits from VI are problematic. GPflow does offer a Hamiltonian Monte Carlo sampling algorithm, but it is still experimental and also prone to instability. Using another probablistic programming language with reliable MCMC methods such as Stan's No-U-Turn Sampler (NUTS) would be more reliable and also likely more efficient than Hamiltonian Monte Carlo.
 
 
+\subsubsection{Scalability vs. Reliable and Full Inference}
 
-Potential for scalability.
+Another benefit of MCMC is that it will return estimates of full distributions for all model parameters. This would offer much more complete information for uncertainty-based decision making when using GP models for prediction and forecasting. For example, full distributions for each latent risk function $f(s,t)$ could be used to compare relative risk outcomes and allocate resources for e.g., traffic calming measures like additional enforcement based on an acceptable risk tolerance. \par
+
+Gaussian Processes are slow to fit with MCMC, since the Cholesky Decomposition has to be done at every iteration of the algorithm. This makes doing full inference slow in some cases and prohibitively complex as the number of dimensions grows. There are some workarounds to this, such as exploiting Kronecker Algebra for fast computations \cite{flaxman_2015_FastKron}, but the dimensionality is still limited to the thousands. While this is more than enough for most applications it does prevent scaling local spatial analysis to cover an area the size of a city while making estimates for relatively small grid squares. One promising alternative is making use of Bochner's theorem, which guarantees any valid stationary kernel can be represented using a Fourier transform \cite{rasmussen_2005}:
+
+$$ k(\mathbf{\tau}=\int_{\mathbb{R^D}}e^{2\pi i \mathbf{s}\mathbf{\tau}}d\mu(\mathbf{s}) $$
+
+Hensman 2018 exploits this for a method called Variational Fourier Features that is capable of estimating high-dimensional models with millions of datapoints in minutes without specialized computing hardware \cite{hensman_vff}. Flaxman 2018 exploits Fourier features as well to apply a Poisson likelihood grid model for forecasting crime for the entire city of Portland, Oregon \cite{flaxman_2018}. Since the spatiotemporal LGCP models considered in this project assumed a stationary kernel by design they would be feasible candidates for using Variational Fourier Features while scaling to larger geographies. Avoiding relying on specialized GPU hardware would be another benefit.
+
+
+\subsection{Other Potential Data Sources}
+
+Other urban datasets may be just as- or even better suited to prediction using Guassian Processes. Many public issues where data are collected do not suffer from the sparsity issues of traffic collisions when making predictions at high resolution. Ubiqitious city annoyances like noise and pests are observed far more frequently than traffic collisions and would also benefit from reliable methods for prediction and comparative risk. Outside of the public sphere, taxi and ride-share vehicle demand are good candidates for heavily localized events which would benefit from granular forecasting.
+
+
+\subsection{Potential for Bias}
+
+ The data used for modelling in this project were deliberately limited to the count data of interest, without relying on supplementary predictive or controlling variables.  One obvious side effect of this choice that neverless bears stating directly is any bias in the data will be diligently reproduced in the predictions. Here 'bias' is meant in the sense of predictions skewed toward existing inaccuracies in the data provided rather than the technical definition of statistical bias.\par
+
+This is especially relevant considering ongoing research into the performance of predictive algorithms when trained on data which had reporting bias. An illustrative example is a 2016 study of predictive policing systems in Oakland, California \cite{lum2016predict}. Lum and Isaac found that the proprietary algorithm provided by a private contractor replicated , rather than controlled for, reporting bias in the training data stemming from historical overpolicing of black Americans for drug offenses. The models used here have also been used for experiments using policing data \cite{flaxman_2014} \cite{flaxman_2018}. The risks of biased predictions based on biased data are not as visible outside of policing, but they should not be ignored when there is potential to practically apply these spatiotemporal models.
+
+\subsection{Measuring Distance}
+
+This project, like the previous research it was based on, relied on simple Euclidean distance in the spatial kernel. Euclidean distance is an excellent 'one-size-fits-all' distance measure for general use, but other measures may be even more suited for predicting events taking place on a street grid. Manhattan distance would be a first alternative, and there is also the potential to use the actual street grid for measuring distance, see the appendix for a small example \todo(appendixstreetgrid). This would also necessitate getting rid of the square grid structure which has further ramifications for the LGCP \todo(what?), but alternatives already exist and may be suitable for use in this case \cite{simpson2016going}. Finally, there is potential to use a distance measure that does not rely on geography at all; something like a social network could also be used as the spatial component.
+
+
+\subsection{Future Work}
+
+There are many possibilities for improvement and refinement. The most valuable would be to move to full Bayesian inference. It is possible to write one of the tested models in an MCMC friendly language such as Stan, which would be capable of generating posterior samples for all variables and parameters of interest rather than relying only on approximated point estimates, opening the door for explicit relative risk comparisons based on the modelled uncertainty. MCMC estimates would also provide a 'sanity check' on the variational approximations and potentially explain why model performance is sometimes poor or unstable. Practically speaking, moving to MCMC would also negate the need for a specialized computing environment with a GPU. if the MCMC results are promising, a further next step would be to experiment with scale by transfering the stationary models to Variational Fourier Features. With VFF it would become trivial to create grid models with high resolution that cover entire cities instead of just one neighborhood and fit them quickly on standard computer hardware.  \par
+
+
+A good portion of the necessary data manipulations could also be automated and abstracted. Automating the creation of the spatial grid, aggregating counts, re-centering variables, and other mundane tasks would make it much easier to experiment on different datasets quickly and efficiently.
+
+
+\subsection{Conclusion}
+
+The goal of this research was to evaluate the feasibility of spatiotemporal prediction and forecasting using a model framework that would be relatively easy to use "out of the box". Gaussian Process models are both theoretically and practically suitable in this case. The latent function structure of the Log Gaussian Cox Process provides direct estimates and predictions as well as a comparative statistic to gauge the relative prevalence of a phenomenona between places and times. \par
+
+The experimental results show that the LGCP performs as well or better at prediction than a standard autoregression as measured by Mean Squared Error in long-, medium-, and short-term cases. The reduction-in-variance estimates show that the fitted models explain variations in spatial timeseries far better than relying on simple averages (an admittedly naive comparison), especially in the long-term model. The decomposed variance components also clearly delineate how time, space, seasonality, and long-term trends influence the total prediction. \par
+
+While Gaussian Process models meet all the practical criteria for interpretable estimates and ease-of-use, the experiments also highlight some instability in fitting and unreliability in results. The worrisome PSIS-LOO scores as well as too-narrow credible intervals should not be ignored, especially when relying on variational inference methods that may not always accurately estimate the posterior distribution.
+
+\todo(better closing)
