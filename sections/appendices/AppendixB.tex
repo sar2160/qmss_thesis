@@ -1,0 +1,22 @@
+\clearpage
+\label{AppendixB}
+\vspace{-1.75cm}
+\section{Variance Decomposition}
+
+
+Making new predictions $f ^ { \star }$ with a variational Gaussian approximation is done by integrating:
+
+
+$$ q \left( f ^ { \star } | \mathbf { y } \right) = \int p \left( f ^ { \star } | \mathbf { f } \right) q ( \text{f} ) \text{d} \mathbf { f } $$
+
+
+
+
+$$q \left( f ^ { \star } | \mathbf { y } \right) = \int \mathcal { N } \left( f ^ { \star } | \mathbf { K } _ { \star f } \mathbf { K } ^ { - 1} \mathbf { f } ,\mathbf { K } _ { \star \star } - \mathbf { K } _ { \star f } \mathbf { K } ^ { - 1} \mathbf { K } _ { f \star } \right) \mathcal { N } ( \mathbf { f } | \mathbf { K } \alpha ,\mathbf { \Sigma } ) \text{d} \mathbf { f }$$
+
+
+$$ q \left( f ^ { \star } | \mathbf { y } \right) = \mathcal { N } \left( f ^ { \star } | \mathbf { K } _ { \star \text{f} } \alpha ,\mathbf { K } _ { \star \star } - \mathbf { K } _ { \star f } \mathbf { ( K } ^ { - 1} - \mathbf { K } ^ { - 1} \mathbf { \Sigma } \mathbf { K } ^ { - 1} \right) \mathbf { K } _ { f \star } ) $$
+
+Here $\mathbf { K } _ { \star \text{f} }$ is the covariance between points used for prediction and the held-out points. $\mathbf { K } _ { \star \star }$ is the covariance of the held out points and $\mathbf { K }$ is the covariance of the prediction points. The full derivation is available online \cite{gpflow_conditional}. \par
+
+To make predictions using only some subset kernel/s of the full covariance it is only necessary to replace $\mathbf { K } _ { \star \text{f} }$ with that subset covariance $K_s$. The Python code to do this is also included below.

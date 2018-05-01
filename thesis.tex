@@ -17,7 +17,7 @@
 
 \usepackage[]{hyperref}
 \hypersetup{
-    pdftitle={Some Bullshit},    % title
+    pdftitle={Thesis_SRimmele},    % title
     pdfauthor={Simon Rimmele},     % author
     colorlinks=true,       % false: boxed links; true: colored links
     linkcolor=black,          % color of internal links (change box color with linkbordercolor)
@@ -67,7 +67,13 @@
 \definecolor{gray75}{gray}{0.75}
 \newcommand{\hsp}{\hspace{20pt}}
 
-% % PRETTY FORMATTING OF SOURCE CODE
+% PRETTY FORMATTING OF SOURCE CODE'
+%\usepackage{styles/pygmentize}
+%\usepackage{styles/minted}
+%\setminted{fontsize=\small baselinestretch=1}
+
+% \AtBeginEnvironment{minted}{\singlespacing\fontsize{10}{10}\selectfont}
+
 % \usepackage{styles/lstBUGS} % for pretty source code (https://github.com/jrnold/lstBUGS)
 % \lstset{
 % basicstyle=\scriptsize\singlespacing,
@@ -112,8 +118,8 @@
 \parbox[b]{0.75\textwidth}{ % Paragraph box which restricts text to less than the width of the page
 
 \singlespacing
-{\noindent\Huge\bfseries A Good Title}\\[2\baselineskip] % Title
-{\large \textit{blah blajh blah }}\\[4\baselineskip] % Tagline or further description
+{\noindent\Huge\bfseries Cities Are Already Smart:}\\[2\baselineskip] % Title
+{\large\noindent\textit{urban spatiotemporal prediction with Gaussian processes}}\\[4\baselineskip] % Tagline or further description
 
 \vspace{2cm}
 
@@ -142,6 +148,24 @@
 \titleGM % This command includes the title page
 
 
+% ACKNOWLEDGEMENTS
+\begin{acknowledgments}
+\setcounter{page}{2}
+Many thanks for your time and advice:
+
+{\singlespacing
+Benjamin Goodrich, \\
+Jonathan Auerbach, \\
+Seth Flaxman, \\
+Jonah Gabry \\
+}
+
+\end{acknowledgments}
+
+\clearpage
+
+
+
 \begingroup
 \mainmatter
 
@@ -161,9 +185,12 @@
 
 
 \backmatter
-
 \begingroup
-\bibliography{bibliography.bib}
+\titleformat{\chapter}[hang]{\Huge\bfseries}{\thechapter\hsp\textcolor{gray75}{|}\hsp}{0pt}{\Huge\bfseries}
+    \setstretch{1}
+    \setlength\bibitemsep{1\baselineskip}
+    \raggedright
+    \bibliography{bibliography.bib}
 \endgroup
 
 \end{document}

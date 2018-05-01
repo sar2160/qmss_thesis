@@ -8,6 +8,6 @@
 *.out
 *.pdf
 *.synctex.gz
-
+*.pyg
 
 outline.md

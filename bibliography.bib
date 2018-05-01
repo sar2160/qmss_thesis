@@ -89,7 +89,7 @@ author = "G. Li and R. Haining and S. Richardson and N. Best",
 keywords = "Crime hotspots, Space–time classification, Stable variation, Local variation, Regression, Spatial random effects"
 }
 
-@Article{cheng_2012,
+@article{cheng_2012,
 author="Cheng, Tao
 and Haworth, James
 and Wang, Jiaqiu",
@@ -120,7 +120,7 @@ author = "Akin Tascikaraoglu",
 keywords = "Spatio-temporal models, Forecasting, Wind speed, Solar irradiance, Load demand, Traffic characteristics"
 }
 
-@Article{kitchin_2014,
+@article{kitchin_2014,
 author="Kitchin, Rob",
 title="The real-time city? Big data and smart urbanism",
 journal="GeoJournal",
@@ -234,13 +234,13 @@ url = {https://EconPapers.repec.org/RePEc:bla:jorssc:v:66:y:2017:i:1:p:121-139}
 @inproceedings{Flaxman2015FastHG,
   title={Fast hierarchical Gaussian processes},
   author={Seth Flaxman and Andrew Gelman and Daniel Neill and Alex J. Smola and Aki Vehtari},
-  year={2015}
+  year={2015},
 }
 
 @inproceedings{flaxman_2014,
   title={A General Approach to Prediction and Forecasting Crime Rates with Gaussian Processes},
   author={Seth Flaxman},
-  year={2014}
+  year={2014},
 }
 
 @book{rasmussen_2005,
@@ -253,10 +253,15 @@ url = {https://EconPapers.repec.org/RePEc:bla:jorssc:v:66:y:2017:i:1:p:121-139}
 
 @website{nyc_vz,
 url = http://www1.nyc.gov/site/visionzero/index.page,
+title = {New York City Vision Zero},
+author = {New York City Dept. of Transportation},
+
 }
 
 @website{nys_crash_stats,
-url = https://www.health.ny.gov/statistics/prevention/injury_prevention/traffic/county_of_residence.htm,
+url = {https://www.health.ny.gov/statistics/prevention/injury_prevention/traffic/county_of_residence.html},
+title = {Traffic Injury Statistics},
+author = {New York State Dept. of Health},
 }
 
 
@@ -272,13 +277,13 @@ publisher = "International Society for Bayesian Analysis",
 title = "Prior distributions for variance parameters in hierarchical models (comment on article by Browne and Draper)",
 url = "https://doi.org/10.1214/06-BA117A",
 volume = "1",
-year = "2006"
+year = "2006",
 }
 
 @inproceedings{garis_2016,
   title={Scalable Gaussian process inference using variational methods},
   author={Alexander Graeme de Garis},
-  year={2016}
+  year={2016},
 }
 
 @ARTICLE{GPflow2017,
@@ -475,4 +480,33 @@ title={Forecasting at Scale},
 author={Taylor, Letham},
 group={Facebook},
 year={2017}
+}
+
+@website{gpflow_conditional,
+url = {http://gpflow.readthedocs.io/en/latest/notebooks/vgp_notes.html},
+title = {Derivations of Variational Gaussian Process},
+}
+
+@article{wakefield2006disease,
+  title={Disease mapping and spatial regression with count data},
+  author={Wakefield, Jon},
+  journal={Biostatistics},
+  volume={8},
+  number={2},
+  pages={158--183},
+  year={2006},
+  publisher={Oxford University Press}
+}
+
+@Misc{stan,
+  title = {{RStan}: the {R} interface to {Stan}},
+  author = {{Stan Development Team}},
+  note = {R package version 2.17.3},
+  year = {2018},
+  url = {http://mc-stan.org/},
+}
+
+@website{mvc,
+url = {https://data.cityofnewyork.us/Public-Safety/NYPD-Motor-Vehicle-Collisions/h9gi-nx95},
+title = {"New York City Open Data: Motor Vehicle Collisions"},
 }

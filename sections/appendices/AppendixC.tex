@@ -1,0 +1,106 @@
+\clearpage
+\label{AppendixC}
+\vspace{-1.75cm}
+\section{Custom Code}
+
+This appendix contains custom GPflow code used for the project.
+
+\subsection{Partial Kernel Decomposition}
+
+\begin{minted}[fontsize=\footnote]{python}
+class PartialVGP(VGP):
+    @params_as_tensors
+    def _build_predict(self, Xnew, full_cov=False, K_part=None):
+        if K_part is None:
+            K_part = self.kern
+
+        mu, var = my_conditional(Xnew, self.X, self.kern, self.q_mu,
+                              q_sqrt=self.q_sqrt, full_cov=full_cov, white=True, K_part = K_part)
+        return mu + self.mean_function(Xnew), var
+
+
+  @name_scope()
+  def my_conditional(Xnew, X, kern, f, *, full_cov=False, q_sqrt=None, white=False,K_part=None):
+      """
+     This is a slightly modified version of the `conditional()` method of the GPFlow VGP Class. It passes 'K_part'
+     to the base_conditional() method.
+      """
+      num_data = tf.shape(X)[0]  # M
+      Kmm = kern.K(X) + tf.eye(num_data, dtype=settings.float_type) * settings.numerics.jitter_level
+      if K_part is not None:
+          print('Using kernel component {}'.format(K_part.name))
+          Kmn = K_part.K(X, Xnew) # changed
+      else:
+          Kmn = kern.K(X, Xnew)
+
+      if full_cov:
+          Knn = kern.K(Xnew)
+      else:
+          Knn = kern.Kdiag(Xnew)
+      return base_conditional(Kmn, Kmm, Knn, f, full_cov=full_cov, q_sqrt=q_sqrt, white=white)
+
+  @name_scope()
+  def base_conditional(Kmn, Kmm, Knn, f, *, full_cov=False, q_sqrt=None, white=False):
+      # compute kernel stuff
+      num_func = tf.shape(f)[1]  # K
+      Lm = tf.cholesky(Kmm)
+
+      # Compute the projection matrix A
+      A = tf.matrix_triangular_solve(Lm, Kmn, lower=True)
+
+      # compute the covariance due to the conditioning
+      if full_cov:
+          fvar = Knn - tf.matmul(A, A, transpose_a=True)
+          shape = tf.stack([num_func, 1, 1])
+      else:
+          fvar = Knn - tf.reduce_sum(tf.square(A), 0)
+          shape = tf.stack([num_func, 1])
+      fvar = tf.tile(tf.expand_dims(fvar, 0), shape)  # K x N x N or K x N
+
+      # another backsubstitution in the unwhitened case
+      if not white:
+          A = tf.matrix_triangular_solve(tf.transpose(Lm), A, lower=False)
+
+      # construct the conditional mean
+      fmean = tf.matmul(A, f, transpose_a=True)
+
+      if q_sqrt is not None:
+          if q_sqrt.get_shape().ndims == 2:
+              LTA = A * tf.expand_dims(tf.transpose(q_sqrt), 2)  # K x M x N
+          elif q_sqrt.get_shape().ndims == 3:
+              L = tf.matrix_band_part(q_sqrt, -1, 0)  # K x M x M
+              A_tiled = tf.tile(tf.expand_dims(A, 0), tf.stack([num_func, 1, 1]))
+              LTA = tf.matmul(L, A_tiled, transpose_a=True)  # K x M x N
+          else:  # pragma: no cover
+              raise ValueError("Bad dimension for q_sqrt: %s" %
+                               str(q_sqrt.get_shape().ndims))
+          if full_cov:
+              fvar = fvar + tf.matmul(LTA, LTA, transpose_a=True)  # K x N x N
+          else:
+              fvar = fvar + tf.reduce_sum(tf.square(LTA), 1)  # K x N
+      fvar = tf.transpose(fvar)  # N x K or N x N x K
+
+      return fmean, fvar
+\end{minted}
+
+\subsection{Student-T Prior}
+
+\begin{minted}[fontsize=\footnote]{python}
+
+class StudentT(Prior):
+    def __init__(self, mean, scale, deg_free):
+        Prior.__init__(self)
+        self.mean = np.atleast_1d(np.array(mean, settings.float_type))
+        self.scale = np.atleast_1d(np.array(scale, settings.float_type))
+        self.deg_free = np.atleast_1d(np.array(deg_free, settings.float_type))
+
+    def logp(self, x):
+        return tf.reduce_sum(densities.student_t(x, self.mean, self.scale, self.deg_free))
+
+    def sample(self, shape=(1,)):
+        return self.mean + self.scale*np.random.standard_t(df = self.deg_free, size=shape)
+
+    def __str__(self):
+        return "student-T("+str(self.mean) + "," + str(self.scale) + str(self.deg_free) + ")"
+
+\end{minted}
