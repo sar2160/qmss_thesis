@@ -142,6 +142,19 @@
 % end TITLE PAGE
 
 
+% NEW ENVIRONMENTS & COMMANDS
+
+% environment for temporarily shrinking margins
+\newenvironment{changemargin}[2]{%
+\begin{list}{}{%
+\setlength{\topsep}{0pt}%
+\setlength{\leftmargin}{#1}%
+\setlength{\rightmargin}{#2}%
+\setlength{\listparindent}{\parindent}%
+\setlength{\itemindent}{\parindent}%
+\setlength{\parsep}{\parskip}%
+}%
+\item[]}{\end{list}}
 
 \begin{document}
 
@@ -164,6 +177,22 @@ Jonah Gabry \\
 
 \clearpage
 
+
+% ABSTRACT
+\begin{abstract}
+\setcounter{page}{1}
+\begin{quote}
+\begin{changemargin}{.5cm}{.5cm}
+\justify
+
+
+ Drawing its modeling and evaluation framework from \citeA{flaxman_2014}, this thesis investigates the use of Gaussian process models for spatiotemporal prediction of social phenomena in an urban setting. Inspired also by advances in timeseries forecasting by \citeA{prophet}, this work privileges simplicity and parsimony in the user experience, accepting only location and timeseries data as inputs while producing results with easily interpretable parameters for  audiences with varying technical knowledge. Models are evaluated at varying levels of spatial and temporal resolution on predictive accuracy and estimate reliability in comparison to standard autoregressive models in a case study of motor vehicle collisions in New York City. It is argued that this type of modeling could be further developed so decision-makers in urban environments may easily leverage existing spatiotemporal data in their daily work.
+
+
+
+\end{changemargin}
+\end{quote}
+\end{abstract}
 
 
 \begingroup

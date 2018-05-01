@@ -55,7 +55,7 @@ The Reduction-in-Variance for each kernel component shows the temporal RBF kerne
 \label{variance_citywide}
 \begin{tabular}{@{}llllll@{}}
 \toprule
-Kernel     & Reduction in Variance &  \\
+Kernel     & Reduction-in-Variance &  \\
 Linear     & 43.2\%                &  \\
 Time (RBF) & 85.2\%                &  \\
 Periodic   & 13.5\%                &  \\
@@ -118,15 +118,15 @@ The PSIS-LOO $k$ score for the citywide model was 0.8, which is problematically 
 
   \subsection{Kernel Components}
 
-  The neighborhood model assumes a stationary kernel in contrast to the citywide model. The two-dimensional spatial distance Matern32 kernel contributes noticeably to the reduction in variance score, while the RBF time kernel and the multiplicative interaction between space and time are also large contributors to the model's explanatory power. The Periodic component makes a smaller contribution than in the long-term model. The total reduction in variance of 65\% is less than the long term model, but still a large improvement over defaulting to neighborhood averages. \par
+  The neighborhood model assumes a stationary kernel in contrast to the citywide model. The two-dimensional spatial distance Matern32 kernel contributes noticeably to the Reduction-in-Variance score, while the RBF time kernel and the multiplicative interaction between space and time are also large contributors to the model's explanatory power. The Periodic component makes a smaller contribution than in the long-term model. The total Reduction-in-Variance of 65\% is less than the long term model, but still a large improvement over defaulting to neighborhood averages. \par
 
   \begin{table}[]
   \centering
-  \caption{Neighborhood Reduction in Variance}
+  \caption{Neighborhood Reduction-in-Variance}
   \label{variance_neighb}
   \begin{tabular}{@{}lll@{}}
   \toprule
-                     & Reduction in Variance &  \\ \midrule
+                     & Reduction-in-Variance &  \\ \midrule
   Time (RBF)         & 27.2\%                &  \\
   Spatial (Matern32) & 22.3\%                &  \\
   Periodic           & 2.0\%                 &  \\
@@ -179,11 +179,11 @@ The kernel components were kept as close as possible to the neighborhood model, 
 
 \begin{table}[]
 \centering
-\caption{Grid Square Model Reduction in Variance}
+\caption{Grid Square Model Reduction-in-Variance}
 \label{variance_grid}
 \begin{tabular}{@{}lll@{}}
 \toprule
-              & Reduction in Variance &  \\ \midrule
+              & Reduction-in-Variance &  \\ \midrule
 Time (RBF)    & -3.5\%                &  \\
 Spatial (RBF) & 35.6\%                &  \\
 Periodic      & 0.0\%                 &  \\

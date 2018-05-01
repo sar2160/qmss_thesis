@@ -67,7 +67,7 @@ The short-term models considered for this project are all stationary and loosely
   \item $k_{st}(s,t)$ : a space-time interaction kernel
 \end{itemize}
 
-Radial Basis Function (RBF) and Matern family kernels are both candidates for spatial and temporal modeling. Their point of differntiaion lies in the extent to which they 'smooth' the input. The most appropriate kernel will vary based on the characteristics of the observations being modeled.
+Radial Basis Function (RBF) and Matern family kernels are both candidates for spatial and temporal modelling. Their point of differntiaion lies in the extent to which they 'smooth' the input. The most appropriate kernel will vary based on the characteristics of the observations being modeled.
 
 The RBF kernel - also called the squared exponential - is widely used as a default stationary kernel:
 
@@ -116,7 +116,7 @@ The major drawback of variational methods is there are no theoretical justificat
 
 \subsection{MCMC}
 
-Markov Chain Monte Carlo (MCMC) sampling methods by contrast do have theoretical properties that ensure consistent estimation of the posterior distribution - at least  as the numbers of samples increases asympotically \cite{teng_2017}. MCMC methods are not a new development in themselves, but there have been breakthroughs both in MCMC algorithm design and computing power required to fit more complex models. The probablistic programming language Stan has been used for spatiotemporal modeling of causes of mortality using Gaussian Markov Random Field models, another potential alternative to LGCPs that may be appropriate for urban forecasting but are not considered here \cite{stan} \cite{foreman_2017}. In contrast to VI, MCMC also is capable of producing estimates for full posterior distributions for parameters of interest, rather than point estimate approximations. In the case of urban prediction and forecasting, access to full posterior estimates would offer much more probalistic information from which to draw uncertainty-based conclusions in a policy or administrative context.
+Markov Chain Monte Carlo (MCMC) sampling methods by contrast do have theoretical properties that ensure consistent estimation of the posterior distribution - at least  as the numbers of samples increases asympotically \cite{teng_2017}. MCMC methods are not a new development in themselves, but there have been breakthroughs both in MCMC algorithm design and computing power required to fit more complex models. The probablistic programming language Stan has been used for spatiotemporal modelling of causes of mortality using Gaussian Markov Random Field models, another potential alternative to LGCPs that may be appropriate for urban forecasting but are not considered here \cite{stan} \cite{foreman_2017}. In contrast to VI, MCMC also is capable of producing estimates for full posterior distributions for parameters of interest, rather than point estimate approximations. In the case of urban prediction and forecasting, access to full posterior estimates would offer much more probalistic information from which to draw uncertainty-based conclusions in a policy or administrative context.
 
 \subsection{LaPlace Approximation}
 
