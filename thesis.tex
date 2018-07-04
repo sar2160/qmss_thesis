@@ -131,6 +131,7 @@
 
 \vspace{.5cm}
 \textsc{May, 2018}
+\thispagestyle{empty}
 
 \vspace{0.3\textheight} % Whitespace between the title block and the publisher
 \begin{center}
@@ -163,16 +164,17 @@
 
 % ACKNOWLEDGEMENTS
 \begin{acknowledgments}
-\setcounter{page}{2}
 Many thanks for your time and advice:
 
 {\singlespacing
 Benjamin Goodrich, \\
 Jonathan Auerbach, \\
 Seth Flaxman, \\
-Jonah Gabry \\
+Jonah Gabry (also for the LateX template) \\
 }
 
+
+\thispagestyle{empty}
 \end{acknowledgments}
 
 \clearpage
@@ -180,27 +182,28 @@ Jonah Gabry \\
 
 % ABSTRACT
 \begin{abstract}
-\setcounter{page}{1}
 \begin{quote}
 \begin{changemargin}{.5cm}{.5cm}
 \justify
 
 
- Drawing its modeling and evaluation framework from \citeA{flaxman_2014}, this thesis investigates the use of Gaussian process models for spatiotemporal prediction of social phenomena in an urban setting. Inspired also by advances in timeseries forecasting by \citeA{prophet}, this work privileges simplicity and parsimony in the user experience, accepting only location and timeseries data as inputs while producing results with easily interpretable parameters for  audiences with varying technical knowledge. Models are evaluated at varying levels of spatial and temporal resolution on predictive accuracy and estimate reliability in comparison to standard autoregressive models in a case study of motor vehicle collisions in New York City. It is argued that this type of modeling could be further developed so decision-makers in urban environments may easily leverage existing spatiotemporal data in their daily work.
+ Drawing its modeling and evaluation framework from \citeA{flaxman_2014}, this thesis investigates the use of Gaussian process models for spatiotemporal prediction of social phenomena in an urban setting. Inspired also by advances in timeseries forecasting by Facebook's Prophet tool \cite{Prophet}, this work privileges simplicity and parsimony in the user experience, accepting only location and timeseries data as inputs while producing results with easily interpretable parameters for  audiences with varying technical knowledge. Models are evaluated at varying levels of spatial and temporal resolution on predictive accuracy and estimate reliability in comparison to standard autoregressive models in a case study of motor vehicle collisions in New York City. It is argued that this type of modeling could be further developed so decision-makers in urban environments may easily leverage existing spatiotemporal data in their daily work.
 
 
+\thispagestyle{empty}
 
 \end{changemargin}
 \end{quote}
 \end{abstract}
 
-
 \begingroup
+\setcounter{page}{1}
+
 \mainmatter
 
 \input{sections/introduction}
 \input{sections/literature_review}
-\input{sections/design}
+%\input{sections/design}
 \input{sections/experiments}
 \input{sections/results}
 \input{sections/discussion}

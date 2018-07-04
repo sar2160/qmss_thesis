@@ -23,8 +23,6 @@ A Pareto-Smoothed-Importance-Sampling Leave-One-Out score (PSIS-LOO) was used to
    \label{city_preds}
  \end{figure}
 
-\todo{discussion of confidence?}
-
 \subsection{Kernel Components}
 
 Since the kernel components are all additive they can provide an interpretable decomposition of the model components. There is clear annual periodicity in the model, which is also confirmed by the period parameter fitted being almost exactly 52. The linear kernel component also suggests a small downward long-term trend in pedestrian injuries.
@@ -95,7 +93,7 @@ The PSIS-LOO $k$ score for the citywide model was 0.8, which is problematically 
 
 
 
-   \begin{figure}{h!}
+   \begin{figure}[h!]
      \centering
      \caption{Relative risk scores for Manhattan neighborhoods. Midtown is roughly twice as dangerous for pedestrians than Manhattan as a whole.}
      \includegraphics[\textwidth]{mn_f_score_map}
